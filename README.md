@@ -27,3 +27,13 @@ docker run --rm -v $(pwd):/src tomaka/rustc-emscripten rustc \
   -C link-args="-s EXPORTED_FUNCTIONS=['_add']"
 php -S 0.0.0.0:9999
 ```
+
+## C++, call function
+
+```
+cd cpp-func
+docker run --rm -v $(pwd):/src trzeci/emscripten:sdk-tag-1.37.19-64bit \
+  emcc func.cpp -o func.js -s WASM=1 \
+  -s "EXPORTED_FUNCTIONS=['_add']"
+php -S 0.0.0.0:9999
+```
