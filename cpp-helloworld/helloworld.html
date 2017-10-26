@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <script src="helloworld.js"></script>
+    <script>
+
+    var module;
+
+    fetch('helloworld.wasm')
+      .then(response => response.arrayBuffer())
+      .then(buffer => new Uint8Array(buffer));
+
+    </script>
+  </body>
+  </body>
+</html>
