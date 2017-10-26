@@ -9,10 +9,8 @@
       fetch('helloworld.wasm')
         .then((response) => response.arrayBuffer())
         .then((buffer) => {
-          // Module.wasmBinaryにhello.wasmの内容を書き込む。
           Module.wasmBinary = buffer;
 
-          // scriptタグを追加してhello.jsを実行する。
           const scriptElem = document.createElement('script');
           scriptElem.src = 'helloworld.js';
           document.body.appendChild(scriptElem);
