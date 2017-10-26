@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script>
+      var Module = {};
+
+
+      fetch('canvas.wasm')
+        .then((response) => response.arrayBuffer())
+        .then((buffer) => {
+          Module.wasmBinary = buffer;
+
+          const scriptElem = document.createElement('script');
+          scriptElem.src = 'canvas.js';
+
+          scriptElem.addEventListener('load', (e) => {
+
+            const update = Module.cwrap('update', null, ['number', 'number', 'number']);
+            const canvas = document.querySelector("canvas");
+            const ctx = canvas.getContext('2d');
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+
+            const image = ctx.createImageData(width, height);
+            const column = ~~(width);
+            const bufsize = ~~(height) * column;
+            const bufptr = Module._malloc(bufsize);
+
+            Module._memset(bufptr, 0, bufsize);
+            let buf = new Uint8Array(Module.HEAPU8.buffer, bufptr, bufsize);
+            for (let i = 0; i < buf.length; i++) {
+              buf[i] = !!Math.round(Math.random());
+            }
+            const tick = () => {
+              requestAnimationFrame(() => {
+                update(bufsize, buf.byteOffset, column);
+
+                for (let i = 0; i < bufsize; i += 1) {
+                  const color = buf[i] ? 0 : 0xFF;
+                  image.data[i * 4] = color;
+                  image.data[i * 4 + 1] = color;
+                  image.data[i * 4 + 2] = color;
+                  image.data[i * 4 + 3] = 0xFF;
+                }
+                ctx.putImageData(image, 0, 0);
+                tick();
+              });
+            };
+            tick();
+          });
+
+          document.body.appendChild(scriptElem);
+        });
+    </script>
+  </head>
+  <body>
+    <canvas></canvas>
+  </body>
+</html>

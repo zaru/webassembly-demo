@@ -37,3 +37,13 @@ docker run --rm -v $(pwd):/src trzeci/emscripten:sdk-tag-1.37.19-64bit \
   -s "EXPORTED_FUNCTIONS=['_add']"
 php -S 0.0.0.0:9999
 ```
+
+## Rust, <canvas>
+
+```
+cd rust-canvas
+docker run --rm -v $(pwd):/src tomaka/rustc-emscripten rustc \
+  --target wasm32-unknown-emscripten canvas.rs -o canvas.js \
+  -C link-args="-s EXPORTED_FUNCTIONS=['_update']"
+php -S 0.0.0.0:9999
+```
