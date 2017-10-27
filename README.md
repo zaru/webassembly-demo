@@ -38,7 +38,7 @@ docker run --rm -v $(pwd):/src trzeci/emscripten:sdk-tag-1.37.19-64bit \
 php -S 0.0.0.0:9999
 ```
 
-## Rust, <canvas>
+## Rust, `<canvas>`
 
 ```
 cd rust-canvas

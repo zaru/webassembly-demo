@@ -30,11 +30,22 @@
             const bufsize = ~~(height) * column;
             const bufptr = Module._malloc(bufsize);
 
+            function dropPoint(e) {
+              const rect = e.target.getBoundingClientRect();
+              const x = e.clientX - rect.left;
+              const y = e.clientY - rect.top;
+              const i = (y - 1) * width + x;
+              buf[i] = true;
+
+            }
+            canvas.addEventListener('click', dropPoint, false);
+
             Module._memset(bufptr, 0, bufsize);
             let buf = new Uint8Array(Module.HEAPU8.buffer, bufptr, bufsize);
             for (let i = 0; i < buf.length; i++) {
-              buf[i] = !!Math.round(Math.random());
+              buf[i] = false;
             }
+
             const tick = () => {
               requestAnimationFrame(() => {
                 update(bufsize, buf.byteOffset, column);
