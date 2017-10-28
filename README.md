@@ -2,6 +2,8 @@
 
 ## demo
 
+Chrome 61+
+
 ### Rust
 
 - https://zaru.github.io/webassembly-demo/rust-canvas/canvas.html
