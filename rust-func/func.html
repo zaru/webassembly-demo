@@ -4,7 +4,12 @@
     <meta charset="utf-8">
     <title></title>
     <script>
-      var Module = {};
+      var Module = {
+        onRuntimeInitialized: function() {
+          const add = Module.cwrap('add', 'number', ['number', 'number']);
+          console.log(`1+2=${add(1, 2)}`);
+        }
+      };
 
       fetch('func.wasm')
         .then((response) => response.arrayBuffer())
@@ -13,12 +18,6 @@
 
           const scriptElem = document.createElement('script');
           scriptElem.src = 'func.js';
-
-          scriptElem.addEventListener('load', (e) => {
-            const add = Module.cwrap('add', 'number', ['number', 'number']);
-            console.log(`1+2=${add(1, 2)}`);
-          });
-
           document.body.appendChild(scriptElem);
         });
     </script>
