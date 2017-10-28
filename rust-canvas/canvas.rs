@@ -12,33 +12,31 @@ fn diffusion(org_buf: &[bool], row: usize, col: usize) -> Vec<bool> {
     }
 
     for x in 0..len {
-        if org_buf[x] == true {
-            if !skip[x] {
-                if x > col {
-                    let top = x - col;
-                    if buf[top] == false {
-                        skip[top] = true;
-                        buf[top] = true;
-                    }
+        if org_buf[x] == true && !skip[x]{
+            if x > col {
+                let top = x - col;
+                if buf[top] == false {
+                    skip[top] = true;
+                    buf[top] = true;
                 }
-                let right = x + 1;
-                if buf[right] == false {
-                    skip[right] = true;
-                    buf[right] = true;
+            }
+            let right = x + 1;
+            if buf[right] == false {
+                skip[right] = true;
+                buf[right] = true;
+            }
+            let bottom = x + col;
+            if bottom < len {
+                if buf[bottom] == false {
+                    skip[bottom] = true;
+                    buf[bottom] = true;
                 }
-                let bottom = x + col;
-                if bottom < len {
-                    if buf[bottom] == false {
-                        skip[bottom] = true;
-                        buf[bottom] = true;
-                    }
-                }
-                if x > 0 {
-                    let left = x - 1;
-                    if buf[left] == false {
-                        skip[left] = true;
-                        buf[left] = true;
-                    }
+            }
+            if x > 0 {
+                let left = x - 1;
+                if buf[left] == false {
+                    skip[left] = true;
+                    buf[left] = true;
                 }
             }
         }
