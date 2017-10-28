@@ -50,7 +50,61 @@
     }
     colorSelector.init()
 
-    var Module = {};
+    var Module = {
+      onRuntimeInitialized: function() {
+        const update = Module.cwrap('update', null, ['number', 'number', 'number']);
+        const canvas = document.querySelector("canvas");
+        const ctx = canvas.getContext('2d');
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+
+        const image = ctx.createImageData(width, height);
+        const column = ~~(width);
+        const bufsize = ~~(height) * column;
+        const bufptr = Module._malloc(bufsize);
+
+        function dropPoint(e) {
+          const rect = e.target.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          const i = (y - 1) * width + x;
+          buf[i] = true;
+
+        }
+        canvas.addEventListener('click', dropPoint, false);
+
+        Module._memset(bufptr, 0, bufsize);
+        let buf = new Uint8Array(Module.HEAPU8.buffer, bufptr, bufsize);
+        for (let i = 0; i < buf.length; i++) {
+          buf[i] = false;
+        }
+
+        const tick = () => {
+          requestAnimationFrame(() => {
+            update(bufsize, buf.byteOffset, column);
+
+            for (let i = 0; i < bufsize; i += 1) {
+              if (buf[i]) {
+                let color = colorSelector.rgbas[(~~(colorSelector.colors.length * (i / buf.length)))];
+                image.data[i * 4] = color.r;
+                image.data[i * 4 + 1] = color.g;
+                image.data[i * 4 + 2] = color.b;
+              } else {
+                image.data[i * 4] = 0xFF;
+                image.data[i * 4 + 1] = 0xFF;
+                image.data[i * 4 + 2] = 0xFF;
+                image.data[i * 4 + 3] = 0xFF;
+              }
+            }
+            ctx.putImageData(image, 0, 0);
+            tick();
+          });
+        };
+        tick();
+      }
+    };
 
     fetch('canvas.wasm')
       .then((response) => response.arrayBuffer())
@@ -59,62 +113,6 @@
 
         const scriptElem = document.createElement('script');
         scriptElem.src = 'canvas.js';
-
-        scriptElem.addEventListener('load', (e) => {
-
-          const update = Module.cwrap('update', null, ['number', 'number', 'number']);
-          const canvas = document.querySelector("canvas");
-          const ctx = canvas.getContext('2d');
-          const width = window.innerWidth;
-          const height = window.innerHeight;
-          canvas.width = width;
-          canvas.height = height;
-
-          const image = ctx.createImageData(width, height);
-          const column = ~~(width);
-          const bufsize = ~~(height) * column;
-          const bufptr = Module._malloc(bufsize);
-
-          function dropPoint(e) {
-            const rect = e.target.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const i = (y - 1) * width + x;
-            buf[i] = true;
-
-          }
-          canvas.addEventListener('click', dropPoint, false);
-
-          Module._memset(bufptr, 0, bufsize);
-          let buf = new Uint8Array(Module.HEAPU8.buffer, bufptr, bufsize);
-          for (let i = 0; i < buf.length; i++) {
-            buf[i] = false;
-          }
-
-          const tick = () => {
-            requestAnimationFrame(() => {
-              update(bufsize, buf.byteOffset, column);
-
-              for (let i = 0; i < bufsize; i += 1) {
-                if (buf[i]) {
-                  let color = colorSelector.rgbas[(~~(colorSelector.colors.length * (i / buf.length)))];
-                  image.data[i * 4] = color.r;
-                  image.data[i * 4 + 1] = color.g;
-                  image.data[i * 4 + 2] = color.b;
-                } else {
-                  image.data[i * 4] = 0xFF;
-                  image.data[i * 4 + 1] = 0xFF;
-                  image.data[i * 4 + 2] = 0xFF;
-                  image.data[i * 4 + 3] = 0xFF;
-                }
-              }
-              ctx.putImageData(image, 0, 0);
-              tick();
-            });
-          };
-          tick();
-        });
-
         document.body.appendChild(scriptElem);
       });
 
